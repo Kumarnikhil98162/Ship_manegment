@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
-// ✅ Use environment variable instead of hardcoding
-const API_URL = import.meta.env.VITE_API_URL;
+// ✅ Use environment variable with a safe fallback
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 function RegisterPage() {
   const [username, setUsername] = useState("");
@@ -19,13 +19,22 @@ function RegisterPage() {
     }
 
     try {
+      console.log("🌍 API URL:", API_URL); // Debugging log
+
       const res = await fetch(`${API_URL}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, email, password }),
       });
 
-      const data = await res.json();
+      // If backend sends empty response, avoid .json() crash
+      let data = {};
+      try {
+        data = await res.json();
+      } catch {
+        console.error("⚠️ No JSON in response");
+      }
+
       console.log("✅ Response:", data);
 
       if (res.ok) {
@@ -35,7 +44,7 @@ function RegisterPage() {
         setPassword("");
         setConfirmPassword("");
       } else {
-        alert("❌ Error: " + data.error);
+        alert("❌ Error: " + (data.error || "Unknown error"));
       }
     } catch (err) {
       console.error("❌ Request failed", err);
