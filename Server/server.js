@@ -19,8 +19,8 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // ✅ Middleware
-app.use(express.json());
 app.use(cors());
+app.use(express.json());
 
 // ✅ MongoDB connection
 mongoose
@@ -29,24 +29,27 @@ mongoose
     useUnifiedTopology: true,
   })
   .then(() => console.log("✅ MongoDB connected"))
-  .catch((err) => console.error("❌ MongoDB connection error:", err));
+  .catch((err) => {
+    console.error("❌ MongoDB connection error:", err.message);
+    process.exit(1); // stop server if DB fails
+  });
 
 // ✅ Routes
-app.use("/api/auth", authRoutes);          // auth
-app.use("/api/foods", foodRoutes);         // catering orders
+app.use("/api/auth", authRoutes);             // authentication
+app.use("/api/foods", foodRoutes);            // catering orders
 app.use("/api/stationery", stationeryRoutes); // stationery orders
-app.use("/api/gym", gymRoutes);            // gym bookings
-app.use("/api/salon", salonRoutes);        // salon bookings
-app.use("/api/movies", movieRoutes);       // movie bookings
-app.use("/api/hall", hallRoutes);          // hall bookings
-app.use("/api/admin", adminRoutes);        // admin dashboard routes
+app.use("/api/gym", gymRoutes);               // gym bookings
+app.use("/api/salon", salonRoutes);           // salon bookings
+app.use("/api/movies", movieRoutes);          // movie bookings
+app.use("/api/hall", hallRoutes);             // hall bookings
+app.use("/api/admin", adminRoutes);           // admin dashboard
 
 // ✅ Root test route
 app.get("/", (req, res) => {
-  res.send("🚀 Ship Management API is running");
+  res.send("🚀 Ship Management API is running successfully!");
 });
 
 // ✅ Start server
-app.listen(PORT, () => {
-  console.log(`✅ Server running at http://localhost:${PORT}`);
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`✅ Server running on port ${PORT}`);
 });
