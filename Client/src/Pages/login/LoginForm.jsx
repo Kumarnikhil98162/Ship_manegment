@@ -1,43 +1,39 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+// ✅ Use environment variable for backend URL
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
+    try {
+      const res = await fetch(`${API_URL}/api/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
 
-  try {
-    const res = await fetch("http://localhost:5000/api/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
+      const data = await res.json();
 
-    const data = await res.json();
+      if (!res.ok) {
+        alert(data.error || "Login failed");
+      } else {
+        console.log("✅ Logged in user:", data.user);
 
-    if (!res.ok) {
-      // Show error if login fails
-      alert(data.error);
-    } else {
-      console.log("Logged in user:", data.user);
-
-      // Redirect immediately to dashboard
-      navigate("/dashboard");  
-
-      // Optional: show a message in dashboard or UI instead of alert
-      // alert(data.message);  // ← REMOVE THIS if you want instant redirect
+        // Redirect immediately to dashboard
+        navigate("/dashboard");
+      }
+    } catch (err) {
+      console.error("❌ Error during login:", err);
+      alert("Something went wrong. Please try again.");
     }
-  } catch (err) {
-    console.error(err);
-    alert("Something went wrong. Please try again.");
-  }
-};
-
+  };
 
   return (
     <form className="flex flex-col gap-4 w-full" onSubmit={handleSubmit}>
