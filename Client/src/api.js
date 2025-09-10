@@ -1,4 +1,6 @@
-const API_URL = "http://localhost:5000"; // backend base URL
+// Use environment variable for backend URL
+const API_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000"; 
+// 👆 In local dev, you can still use localhost if VITE_API_BASE_URL isn’t set
 
 // ---------------- User side ----------------
 
@@ -15,7 +17,6 @@ export async function getFoods() {
 }
 
 // Create a stationery order
-
 export async function createStationeryOrder(orderData) {
   const payload = {
     userId: localStorage.getItem("userId") || "guest",
@@ -29,9 +30,6 @@ export async function createStationeryOrder(orderData) {
   });
   return res.json();
 }
-
-
-
 
 // Create a movie booking
 export async function createMovieOrder(orderData) {
@@ -107,7 +105,7 @@ export async function getAllSalonBookings() {
 
 export async function updateOrderStatus(section, orderId, status) {
   const res = await fetch(`${API_URL}/api/admin/${section}/${orderId}`, {
-    method: "PUT", // ✅ FIXED (was PATCH)
+    method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ status }),
   });
